@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotiza tu proyecto</title>
+  <meta name="description" content="Cotizador rápido para proyectos web, marketing, diseño y branding." />
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --ink:#171923;
+      --muted:#697386;
+      --line:#e6e9ef;
+      --accent:#111827;
+      --soft:#eef2f7;
+      --ok:#0f766e;
+      --radius:22px;
+      --shadow:0 20px 60px rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:linear-gradient(180deg,#fafbfc 0%,var(--bg) 100%);
+      color:var(--ink);
+    }
+    button,input,select,textarea{font:inherit}
+    .page{min-height:100vh;display:flex;flex-direction:column}
+    header{
+      width:min(1180px, calc(100% - 32px));
+      margin:0 auto;
+      padding:26px 0;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .brand{font-weight:400;letter-spacing:0;font-size:18px}
+    .tag{font-size:13px;color:var(--muted);background:#fff;border:1px solid var(--line);padding:9px 13px;border-radius:999px}
+    main{width:min(1180px, calc(100% - 32px));margin:20px auto 60px;display:grid;grid-template-columns:1.45fr .75fr;gap:28px;align-items:start}
+    .panel,.summary{
+      background:rgba(255,255,255,.94);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .panel{padding:34px}
+    .summary{padding:28px;position:sticky;top:20px}
+    .eyebrow{text-transform:uppercase;font-size:12px;letter-spacing:.14em;font-weight:800;color:var(--muted)}
+    h1{font-size:clamp(34px,5vw,60px);line-height:1.02;letter-spacing:-.055em;margin:10px 0 14px}
+    .lead{font-size:18px;line-height:1.6;color:var(--muted);max-width:760px;margin-bottom:28px}
+    .progress{height:8px;background:var(--soft);border-radius:99px;overflow:hidden;margin:24px 0 34px}
+    .progress > div{height:100%;width:20%;background:var(--accent);transition:.3s ease}
+    .step{display:none}
+    .step.active{display:block;animation:fade .22s ease}
+    @keyframes fade{from{opacity:.2;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .step h2{font-size:28px;letter-spacing:-.035em;margin:0 0 8px}
+    .help{color:var(--muted);margin:0 0 24px}
+    .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .option{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:18px;
+      padding:20px;
+      cursor:pointer;
+      transition:.2s;
+      text-align:left;
+    }
+    .option:hover{transform:translateY(-2px);border-color:#b8bec8}
+    .option.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+    .option b{display:block;font-size:18px;margin-bottom:5px}
+    .option span{color:var(--muted);font-size:14px;line-height:1.45}
+    .service-options{display:grid;gap:12px}
+    .checkrow{
+      border:1px solid var(--line);border-radius:16px;padding:14px 16px;
+      display:flex;justify-content:space-between;gap:14px;align-items:center;
+      background:white;
+    }
+    .checkrow label{display:flex;gap:12px;align-items:flex-start;cursor:pointer;flex:1}
+    .checkrow small{color:var(--muted);display:block;margin-top:3px}
+    .price{font-weight:800;white-space:nowrap}
+    input[type="checkbox"],input[type="radio"]{width:18px;height:18px;margin-top:2px;accent-color:#111827}
+    .field{display:grid;gap:7px;margin-bottom:16px}
+    .field label{font-weight:700;font-size:14px}
+    .field input,.field select,.field textarea{
+      width:100%;border:1px solid var(--line);border-radius:13px;padding:13px 14px;background:#fff;outline:none
+    }
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:#7b8492;box-shadow:0 0 0 3px #eef1f5}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .nav{display:flex;justify-content:space-between;gap:12px;margin-top:28px}
+    .btn{border:0;border-radius:13px;padding:13px 18px;font-weight:800;cursor:pointer}
+    .btn.secondary{background:var(--soft);color:var(--ink)}
+    .btn.primary{background:var(--accent);color:#fff}
+    .btn:disabled{opacity:.35;cursor:not-allowed}
+    .summary h3{font-size:22px;margin:0 0 16px;letter-spacing:-.03em}
+    .summary-list{display:grid;gap:12px;margin:18px 0 22px}
+    .summary-item{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+    .summary-item span:first-child{color:var(--muted)}
+    .total-box{border-top:1px solid var(--line);padding-top:20px}
+    .total-label{color:var(--muted);font-size:13px}
+    .total{font-size:34px;font-weight:900;letter-spacing:-.04em;margin:4px 0}
+    .range{color:var(--ok);font-weight:800;font-size:14px}
+    .fineprint{color:var(--muted);font-size:12px;line-height:1.5;margin-top:13px}
+    .result{
+      background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:22px;margin:18px 0
+    }
+    .result strong{font-size:36px;letter-spacing:-.045em}
+    .success-note{color:var(--muted);line-height:1.55}
+    .whatsapp{display:inline-block;margin-top:10px;color:var(--ink);font-weight:800;text-decoration:none}
+    @media(max-width:900px){
+      main{grid-template-columns:1fr}
+      .summary{position:static;order:-1}
+      .cards,.grid2{grid-template-columns:1fr}
+      .panel{padding:24px}
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="brand">Rafael Rodriguez</div>
+    <div class="tag">Cotización preliminar · 3 minutos</div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <div class="eyebrow">Cotizador inteligente</div>
+      <h1>¿Cuánto cuesta hacer realidad tu proyecto?</h1>
+      <p class="lead">Configura lo que necesitas y recibe un estimado inmediato. El valor final se confirma después de revisar alcance, tiempos y requerimientos técnicos.</p>
+
+      <div class="progress"><div id="progressBar"></div></div>
+
+      <div class="step active" data-step="1">
+        <h2>1. ¿Qué necesitas?</h2>
+        <p class="help">Selecciona la categoría principal del proyecto.</p>
+        <div class="cards" id="categoryCards">
+          <button class="option" data-category="web"><b>Web</b><span>Landing, web corporativa, ecommerce y desarrollos.</span></button>
+          <button class="option" data-category="marketing"><b>Marketing digital</b><span>Redes, contenido, pauta, estrategia y campañas.</span></button>
+          <button class="option" data-category="design"><b>Diseño gráfico</b><span>Piezas digitales, impresos, brochures y presentaciones.</span></button>
+          <button class="option" data-category="branding"><b>Branding</b><span>Logo, naming, identidad, manuales y aplicaciones.</span></button>
+        </div>
+      </div>
+
+      <div class="step" data-step="2">
+        <h2>2. Configura tu servicio</h2>
+        <p class="help">Elige el servicio base que más se acerca a lo que necesitas.</p>
+        <div class="service-options" id="baseServices"></div>
+      </div>
+
+      <div class="step" data-step="3">
+        <h2>3. Añade extras</h2>
+        <p class="help">Marca solo lo que realmente vas a necesitar.</p>
+        <div class="service-options" id="extras"></div>
+      </div>
+
+      <div class="step" data-step="4">
+        <h2>4. Cuéntanos un poco más</h2>
+        <p class="help">Estos datos ayudan a aterrizar mejor el estimado.</p>
+        <div class="grid2">
+          <div class="field">
+            <label>¿Qué tan pronto lo necesitas?</label>
+            <select id="urgency">
+              <option value="normal">Sin urgencia especial</option>
+              <option value="soon">En 1–2 semanas</option>
+              <option value="urgent">Urgente / menos de 7 días</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>¿Ya tienes contenidos?</label>
+            <select id="contentStatus">
+              <option value="yes">Sí, textos e imágenes</option>
+              <option value="partial">Parcialmente</option>
+              <option value="no">No, necesito apoyo</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Comentario adicional</label>
+          <textarea id="notes" rows="5" placeholder="Cuéntanos brevemente qué quieres lograr..."></textarea>
+        </div>
+      </div>
+
+      <div class="step" data-step="5">
+        <h2>5. Tu estimado</h2>
+        <p class="help">Déjanos tus datos para convertir este cálculo en una propuesta formal.</p>
+        <div class="result">
+          <div class="total-label">Inversión estimada</div>
+          <strong id="finalRange">$0 – $0</strong>
+          <p class="success-note">Este cálculo es referencial. Puede ajustarse según complejidad, entregables, tiempos, número de revisiones e integraciones.</p>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Nombre</label><input id="clientName" type="text" placeholder="Tu nombre"></div>
+          <div class="field"><label>Empresa</label><input id="company" type="text" placeholder="Empresa o proyecto"></div>
+          <div class="field"><label>Correo</label><input id="email" type="email" placeholder="correo@empresa.com"></div>
+          <div class="field"><label>WhatsApp</label><input id="phone" type="tel" placeholder="+593..."></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn primary" id="pdfBtn">Descargar cotización PDF</button>
+          <button class="btn secondary" id="copyBtn">Copiar resumen</button>
+        </div>
+        <a class="whatsapp" id="waLink" href="#" target="_blank" rel="noopener">Enviar resumen por WhatsApp →</a>
+      </div>
+
+      <div class="nav">
+        <button class="btn secondary" id="backBtn" disabled>← Atrás</button>
+        <button class="btn primary" id="nextBtn" disabled>Siguiente →</button>
+      </div>
+    </section>
+
+    <aside class="summary">
+      <div class="eyebrow">Tu selección</div>
+      <h3>Resumen del proyecto</h3>
+      <div class="summary-list" id="summaryList">
+        <div class="summary-item"><span>Categoría</span><b>Sin seleccionar</b></div>
+      </div>
+      <div class="total-box">
+        <div class="total-label">Estimado actual</div>
+        <div class="total" id="estimate">$0</div>
+        <div class="range" id="estimateRange">Selecciona un servicio para comenzar</div>
+        <div class="fineprint">Valores referenciales antes de IVA. Recomendamos trabajar con un rango, no como precio final cerrado.</div>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script>
+const pricing = {
+  web: {
+    label: "Web",
+    base: [
+      ["landing","Landing page",220],
+      ["basic","Web básica hasta 4 secciones",350],
+      ["corporate6","Web corporativa hasta 6 páginas",450],
+      ["corporate10","Web corporativa hasta 10 páginas",650],
+      ["shop","Tienda online básica",750],
+      ["shopAdvanced","Tienda online avanzada",1000]
+    ],
+    extras: [
+      ["blog","Blog / noticias",80],
+      ["extraPage","Página adicional",35],
+      ["form","Formulario avanzado",60],
+      ["whatsapp","Integración WhatsApp",20],
+      ["analytics","Google Analytics / Tag Manager",50],
+      ["pixel","Meta Pixel",35],
+      ["seo","SEO técnico inicial",100],
+      ["payments","Pasarela de pagos",100],
+      ["products20","Carga de hasta 20 productos",100],
+      ["multilang","Multidioma",150],
+      ["training","Capacitación de uso",50],
+      ["maintenance","Mantenimiento mensual básico",60]
+    ]
+  },
+  marketing: {
+    label: "Marketing digital",
+    base: [
+      ["diagnostic","Diagnóstico + estrategia inicial",120],
+      ["social1","Gestión de 1 red social / mes",180],
+      ["social2","Gestión de 2 redes sociales / mes",250],
+      ["social3","Gestión de 3 redes sociales / mes",320],
+      ["campaign","Estrategia de campaña puntual",180],
+      ["event","Cobertura de evento",120],
+      ["email","Email marketing mensual",100]
+    ],
+    extras: [
+      ["posts12","12 publicaciones mensuales",60],
+      ["posts16","16 publicaciones mensuales",100],
+      ["stories","Diseño de historias",40],
+      ["reels4","4 reels editados",100],
+      ["reels8","8 reels editados",180],
+      ["meta","Gestión de Meta Ads",100],
+      ["google","Gestión de Google Ads",120],
+      ["setup","Configuración inicial de campaña",60],
+      ["tracking","Pixel / conversiones",50],
+      ["community","Community management",80],
+      ["mailing","Diseño + envío de mailing",45]
+    ]
+  },
+  design: {
+    label: "Diseño gráfico",
+    base: [
+      ["post","Post para redes sociales",15],
+      ["story","Historia para redes",10],
+      ["carousel","Carrusel hasta 5 láminas",35],
+      ["flyer","Flyer digital",25],
+      ["poster","Afiche",30],
+      ["brochure4","Brochure 4 páginas",80],
+      ["brochure8","Brochure 8 páginas",140],
+      ["catalog","Catálogo hasta 12 páginas",180],
+      ["slides10","Presentación hasta 10 diapositivas",100],
+      ["slides20","Presentación hasta 20 diapositivas",180],
+      ["infographic","Infografía",45],
+      ["rollup","Diseño de roll up",45],
+      ["pack10","Paquete 10 piezas para redes",120],
+      ["pack20","Paquete 20 piezas para redes",220]
+    ],
+    extras: [
+      ["copy","Redacción de contenido",20],
+      ["images","Búsqueda y selección de imágenes",15],
+      ["adapt2","2 adaptaciones de formato",16],
+      ["editable","Entrega de editable",25]
+    ]
+  },
+  branding: {
+    label: "Branding",
+    base: [
+      ["logo","Diseño de logo",180],
+      ["redesign","Rediseño de logo",150],
+      ["naming","Naming de marca",120],
+      ["manualBasic","Manual básico de marca",120],
+      ["manualFull","Manual completo de identidad",250],
+      ["stationery","Papelería corporativa básica",80],
+      ["socialKit","Plantillas para redes",80],
+      ["launchKit","Kit de lanzamiento de marca",150],
+      ["fullBrand","Branding completo",450],
+      ["brandWeb","Branding + web",750]
+    ],
+    extras: [
+      ["slogan","Slogan",60],
+      ["palette","Paleta cromática + tipografías",60],
+      ["signature","Firma de correo",25],
+      ["applications","5 aplicaciones de marca",100],
+      ["presentation","Plantilla de presentación",70]
+    ]
+  }
+};
+
+let state = { step:1, category:null, base:null, extras:[] };
+
+const q = s => document.querySelector(s);
+const qa = s => [...document.querySelectorAll(s)];
+
+function money(n){ return "$" + Math.round(n).toLocaleString("en-US"); }
+
+function calc(){
+  let total = 0;
+  let cfg = state.category ? pricing[state.category] : null;
+  if(cfg && state.base){
+    const b = cfg.base.find(x => x[0] === state.base);
+    if(b) total += b[2];
+    state.extras.forEach(id => {
+      const e = cfg.extras.find(x => x[0] === id);
+      if(e) total += e[2];
+    });
+  }
+  if(q("#urgency")?.value === "urgent") total *= 1.30;
+  if(q("#contentStatus")?.value === "no" && total>0) total += 60;
+  if(q("#contentStatus")?.value === "partial" && total>0) total += 30;
+  return Math.round(total);
+}
+
+function range(total){
+  if(!total) return [0,0];
+  return [Math.round(total*.95/5)*5, Math.round(total*1.15/5)*5];
+}
+
+function renderSummary(){
+  const list = q("#summaryList");
+  if(!state.category){
+    list.innerHTML = '<div class="summary-item"><span>Categoría</span><b>Sin seleccionar</b></div>';
+  } else {
+    const cfg = pricing[state.category];
+    let html = `<div class="summary-item"><span>Categoría</span><b>${cfg.label}</b></div>`;
+    if(state.base){
+      const b = cfg.base.find(x=>x[0]===state.base);
+      html += `<div class="summary-item"><span>${b[1]}</span><b>${money(b[2])}</b></div>`;
+    }
+    state.extras.forEach(id=>{
+      const e = cfg.extras.find(x=>x[0]===id);
+      html += `<div class="summary-item"><span>${e[1]}</span><b>+ ${money(e[2])}</b></div>`;
+    });
+    list.innerHTML = html;
+  }
+  const total = calc();
+  const [min,max]=range(total);
+  q("#estimate").textContent = money(total);
+  q("#estimateRange").textContent = total ? `Rango sugerido: ${money(min)} – ${money(max)}` : "Selecciona un servicio para comenzar";
+  q("#finalRange").textContent = `${money(min)} – ${money(max)} + IVA`;
+}
+
+function renderBase(){
+  const cfg = pricing[state.category];
+  q("#baseServices").innerHTML = cfg.base.map(([id,name,price])=>`
+    <div class="checkrow">
+      <label>
+        <input type="radio" name="baseService" value="${id}" ${state.base===id?'checked':''}>
+        <span><b>${name}</b><small>Servicio base</small></span>
+      </label>
+      <div class="price">${money(price)}</div>
+    </div>`).join("");
+  qa('input[name="baseService"]').forEach(r=>r.addEventListener("change",e=>{
+    state.base=e.target.value;
+    q("#nextBtn").disabled=false;
+    renderSummary();
+  }));
+}
+
+function renderExtras(){
+  const cfg = pricing[state.category];
+  q("#extras").innerHTML = cfg.extras.map(([id,name,price])=>`
+    <div class="checkrow">
+      <label>
+        <input type="checkbox" value="${id}" ${state.extras.includes(id)?'checked':''}>
+        <span><b>${name}</b><small>Opcional</small></span>
+      </label>
+      <div class="price">+ ${money(price)}</div>
+    </div>`).join("");
+  q("#extras").querySelectorAll('input[type="checkbox"]').forEach(c=>c.addEventListener("change",e=>{
+    if(e.target.checked) state.extras.push(e.target.value);
+    else state.extras=state.extras.filter(x=>x!==e.target.value);
+    renderSummary();
+  }));
+}
+
+function showStep(n){
+  state.step=n;
+  qa(".step").forEach(s=>s.classList.toggle("active",Number(s.dataset.step)===n));
+  q("#progressBar").style.width = `${n*20}%`;
+  q("#backBtn").disabled = n===1;
+  q("#nextBtn").style.display = n===5 ? "none":"inline-block";
+  if(n===1) q("#nextBtn").disabled = !state.category;
+  if(n===2) q("#nextBtn").disabled = !state.base;
+  if(n>=3) q("#nextBtn").disabled = false;
+  if(n===5) renderSummary();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+qa("#categoryCards .option").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    qa("#categoryCards .option").forEach(x=>x.classList.remove("active"));
+    btn.classList.add("active");
+    state.category=btn.dataset.category;
+    state.base=null; state.extras=[];
+    q("#nextBtn").disabled=false;
+    renderBase(); renderExtras(); renderSummary();
+  });
+});
+
+q("#nextBtn").addEventListener("click",()=> {
+  if(state.step===1 && state.category) renderBase();
+  if(state.step===2 && state.base) renderExtras();
+  showStep(Math.min(5,state.step+1));
+});
+q("#backBtn").addEventListener("click",()=> showStep(Math.max(1,state.step-1)));
+
+["urgency","contentStatus"].forEach(id=>q("#"+id).addEventListener("change",renderSummary));
+
+function summaryText(){
+  const cfg=pricing[state.category];
+  const base=cfg.base.find(x=>x[0]===state.base);
+  const ex=state.extras.map(id=>cfg.extras.find(x=>x[0]===id)).filter(Boolean);
+  const total=calc(), [min,max]=range(total);
+  return [
+    "Hola, quiero solicitar una propuesta formal.",
+    "",
+    `Categoría: ${cfg.label}`,
+    `Servicio base: ${base?.[1] || "-"}`,
+    ...ex.map(x=>`Extra: ${x[1]}`),
+    `Urgencia: ${q("#urgency").selectedOptions[0].text}`,
+    `Contenidos: ${q("#contentStatus").selectedOptions[0].text}`,
+    `Estimado: ${money(min)} – ${money(max)} + IVA`,
+    "",
+    `Nombre: ${q("#clientName").value || "-"}`,
+    `Empresa: ${q("#company").value || "-"}`,
+    `Correo: ${q("#email").value || "-"}`,
+    `WhatsApp: ${q("#phone").value || "-"}`,
+    `Comentario: ${q("#notes").value || "-"}`
+  ].join("\n");
+}
+
+
+
+function pdfSafe(text){
+  return String(text ?? "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[–—]/g,"-")
+    .replace(/[^\x20-\x7E]/g, "");
+}
+
+function pdfEsc(text){
+  return pdfSafe(text).replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)");
+}
+
+function buildQuotePdf(){
+  const cfg=pricing[state.category];
+  if(!cfg || !state.base){ alert("Selecciona un servicio antes de descargar la cotización."); return; }
+  const base=cfg.base.find(x=>x[0]===state.base);
+  const extras=state.extras.map(id=>cfg.extras.find(x=>x[0]===id)).filter(Boolean);
+  const total=calc(), [min,max]=range(total);
+  const name=q("#clientName").value || "Cliente";
+  const company=q("#company").value || "-";
+  const email=q("#email").value || "-";
+  const phone=q("#phone").value || "-";
+  const notes=q("#notes").value || "Sin comentarios adicionales";
+  const today=new Date().toLocaleDateString("es-EC",{day:"2-digit",month:"2-digit",year:"numeric"});
+
+  const cmds=[];
+  const txt=(x,y,size,text,bold=false)=>cmds.push(`BT /${bold?'F2':'F1'} ${size} Tf ${x} ${y} Td (${pdfEsc(text)}) Tj ET`);
+  const line=(x1,y1,x2,y2)=>cmds.push(`${x1} ${y1} m ${x2} ${y2} l S`);
+  const fillRect=(x,y,w,h,gray)=>cmds.push(`${gray} g ${x} ${y} ${w} ${h} re f 0 g`);
+
+  fillRect(0,770,595,72,0.08);
+  cmds.push('1 g');
+  txt(42,804,18,'Rafael Rodriguez',true);
+  txt(42,786,9,'Cotizacion preliminar de servicios',false);
+  cmds.push('0 g');
+
+  txt(42,742,10,'COTIZACION PRELIMINAR',true);
+  txt(430,742,9,`Fecha: ${today}`);
+  line(42,730,553,730);
+
+  txt(42,704,9,'Cliente',true); txt(130,704,9,name);
+  txt(42,687,9,'Empresa',true); txt(130,687,9,company);
+  txt(42,670,9,'Correo',true); txt(130,670,9,email);
+  txt(42,653,9,'WhatsApp',true); txt(130,653,9,phone);
+
+  fillRect(42,596,511,42,0.95);
+  txt(58,618,10,'Inversion estimada',true);
+  txt(310,611,19,`${money(min)} - ${money(max)} + IVA`,true);
+
+  txt(42,566,11,'Detalle del proyecto',true);
+  line(42,557,553,557);
+  let y=536;
+  txt(42,y,9,'Categoria',true); txt(180,y,9,cfg.label); y-=19;
+  txt(42,y,9,'Servicio base',true); txt(180,y,9,base[1]); txt(500,y,9,money(base[2]),true); y-=22;
+  for(const e of extras){
+    if(y<210) break;
+    txt(42,y,9,'Extra'); txt(180,y,9,e[1]); txt(500,y,9,`+ ${money(e[2])}`,true); y-=18;
+  }
+  if(q('#urgency').value==='urgent'){ txt(42,y,9,'Urgencia',true); txt(180,y,9,'Menos de 7 dias (+30%)'); y-=18; }
+  else { txt(42,y,9,'Urgencia',true); txt(180,y,9,q('#urgency').selectedOptions[0].text); y-=18; }
+  txt(42,y,9,'Contenidos',true); txt(180,y,9,q('#contentStatus').selectedOptions[0].text); y-=28;
+
+  txt(42,y,10,'Comentario',true); y-=17;
+  const words=pdfSafe(notes).split(/\s+/); let current=''; const lines=[];
+  for(const w of words){ const test=(current+' '+w).trim(); if(test.length>78){lines.push(current); current=w}else current=test; }
+  if(current) lines.push(current);
+  for(const l of lines.slice(0,4)){ txt(42,y,8.5,l); y-=14; }
+
+  line(42,108,553,108);
+  txt(42,91,8,'Este documento es referencial y no constituye una proforma definitiva.');
+  txt(42,78,8,'El valor final puede variar segun alcance, tiempos, revisiones, contenidos e integraciones.');
+  txt(42,58,8,'Contacto: WhatsApp 099 564 4526');
+
+  const content=cmds.join('\n');
+  const objects=[];
+  objects[1]='<< /Type /Catalog /Pages 2 0 R >>';
+  objects[2]='<< /Type /Pages /Kids [3 0 R] /Count 1 >>';
+  objects[3]='<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>';
+  objects[4]=`<< /Length ${content.length} >>\nstream\n${content}\nendstream`;
+  objects[5]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>';
+  objects[6]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>';
+
+  let pdf='%PDF-1.4\n'; const offsets=[0];
+  for(let i=1;i<objects.length;i++){ offsets[i]=pdf.length; pdf+=`${i} 0 obj\n${objects[i]}\nendobj\n`; }
+  const xref=pdf.length;
+  pdf+=`xref\n0 ${objects.length}\n0000000000 65535 f \n`;
+  for(let i=1;i<objects.length;i++) pdf+=String(offsets[i]).padStart(10,'0')+' 00000 n \n';
+  pdf+=`trailer\n<< /Size ${objects.length} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+
+  const blob=new Blob([pdf],{type:'application/pdf'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`Cotizacion-${pdfSafe(name).replace(/\s+/g,'-') || 'cliente'}.pdf`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+q("#pdfBtn").addEventListener("click", buildQuotePdf);
+
+q("#copyBtn").addEventListener("click", async ()=>{
+  try{
+    await navigator.clipboard.writeText(summaryText());
+    q("#copyBtn").textContent="¡Resumen copiado!";
+    setTimeout(()=>q("#copyBtn").textContent="Copiar resumen de cotización",1800);
+  }catch{
+    alert(summaryText());
+  }
+});
+q("#waLink").addEventListener("click",e=>{
+  const text=encodeURIComponent(summaryText());
+  // Reemplaza 593XXXXXXXXX por tu número de WhatsApp.
+  e.currentTarget.href=`https://wa.me/593995644526?text=${text}`;
+});
+
+renderSummary();
+</script>
+</body>
+</html>
